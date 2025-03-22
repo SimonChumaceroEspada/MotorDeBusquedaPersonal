@@ -1,31 +1,31 @@
 import * as lucene from "lucene";
-import { query } from "../db/database";
+import { processFile } from "../files/fileProcessor";
+import fs from "fs-extra";
+import path from "path";
 
+const FILES_PATH = process.env.FILES_PATH || "./data/documents";
 let index: any[] = [];
 
-async function indexDatabase() {
+async function indexFiles() {
   try {
-    const tablesRes = await query(`
-      SELECT table_name 
-      FROM information_schema.tables 
-      WHERE table_schema = 'public';
-    `);
+    const files = await fs.readdir(FILES_PATH);
 
-    for (const { table_name } of tablesRes.rows) {
-      const dataRes = await query(`SELECT * FROM ${table_name}`);
+    for (const file of files) {
+      const filePath = path.join(FILES_PATH, file);
+      const { text, metadata } = await processFile(filePath);
 
-      for (const row of dataRes.rows) {
-        index.push({
-          table: table_name,
-          ...row,
-        });
-      }
+      index.push({
+        type: "file",
+        name: metadata.name,
+        path: metadata.path,
+        content: text,
+      });
     }
 
-    console.log("Indexación completa:", index.length, "registros indexados.");
+    console.log("Archivos indexados:", index.length);
   } catch (error) {
-    console.error("Error en la indexación:", error);
+    console.error("Error indexando archivos:", error);
   }
 }
 
-indexDatabase();
+indexFiles();
