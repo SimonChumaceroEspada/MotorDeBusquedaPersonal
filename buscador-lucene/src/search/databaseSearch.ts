@@ -4,6 +4,7 @@ import path from "path";
 import pdf from "pdf-parse";
 import docx4js from "docx4js";
 import dotenv from "dotenv";
+import mammoth from "mammoth"; // Añadimos mammoth para mejor soporte de docx
 
 dotenv.config();
 
@@ -85,6 +86,8 @@ export async function searchDatabaseAndDocuments(query: string) {
         const ext = path.extname(file).toLowerCase();
         const fileName = path.basename(file).toLowerCase();
 
+        console.log(`Procesando archivo: ${file} (${ext})`);
+
         // Comprobar si el nombre del archivo contiene la consulta
         const nameMatch = fileName.includes(query.toLowerCase());
         if (nameMatch) {
@@ -102,26 +105,54 @@ export async function searchDatabaseAndDocuments(query: string) {
         try {
           if (ext === ".txt") {
             content = await fs.readFile(filePath, "utf-8");
+            console.log(`Contenido TXT leído: ${content.length} caracteres`);
           } else if (ext === ".pdf") {
             const pdfData = await pdf(await fs.readFile(filePath));
             content = pdfData.text;
-          } else if (ext === ".docx") {
-            const doc = await docx4js.load(filePath);
-            content = doc.getFullText();
+            console.log(`Contenido PDF extraído: ${content.length} caracteres`);
+          } else if (ext === ".docx" || ext === ".doc") {
+            try {
+              // Intentar primero con mammoth (mejor para docx modernos)
+              const result = await mammoth.extractRawText({ path: filePath });
+              content = result.value;
+              console.log(`Contenido DOCX extraído con mammoth: ${content.length} caracteres`);
+            } catch (mammothError) {
+              console.log(`Error en mammoth, intentando con docx4js: ${mammothError}`);
+              // Si falla mammoth, intentar con docx4js como fallback
+              try {
+                const doc = await docx4js.load(filePath);
+                content = doc.getFullText();
+                console.log(`Contenido DOCX extraído con docx4js: ${content.length} caracteres`);
+              } catch (docx4jsError) {
+                console.error(`Error procesando DOCX con docx4js: ${docx4jsError}`);
+                throw new Error(`No se pudo procesar el archivo DOCX: ${file}`);
+              }
+            }
           } else {
             // Log de tipos de archivo no soportados
             console.log(`Tipo de archivo no soportado: ${ext}`);
             continue;
           }
 
+          if (!content || content.length === 0) {
+            console.log(`No se pudo extraer contenido de: ${file}`);
+            continue;
+          }
+
+          console.log(`Buscando "${query}" en contenido de ${file}`);
+          
           if (content.toLowerCase().includes(query.toLowerCase())) {
+            console.log(`Encontrado "${query}" en ${file}`);
+            
             // En lugar de una sola coincidencia, buscamos todas las ocurrencias
             const contentLower = content.toLowerCase();
             const queryLower = query.toLowerCase();
             let startPos = 0;
             let foundPos;
+            let occurrences = 0;
             
             while ((foundPos = contentLower.indexOf(queryLower, startPos)) !== -1) {
+              occurrences++;
               // Extraer un fragmento de texto alrededor de la coincidencia para contexto
               const startExtract = Math.max(0, foundPos - 50);
               const endExtract = Math.min(content.length, foundPos + queryLower.length + 50);
@@ -137,7 +168,9 @@ export async function searchDatabaseAndDocuments(query: string) {
               startPos = foundPos + queryLower.length;
             }
             
-            console.log(`Coincidencias en contenido: ${file}`);
+            console.log(`Encontradas ${occurrences} coincidencias en: ${file}`);
+          } else {
+            console.log(`No se encontró "${query}" en ${file}`);
           }
         } catch (error) {
           console.error(`Error procesando archivo ${file}:`, error);
