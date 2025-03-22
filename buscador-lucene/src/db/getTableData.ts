@@ -10,4 +10,4 @@ async function getTableData(tableName: string) {
 }
 
 // Cambia el nombre de la tabla para probar
-getTableData("nombre_de_tu_tabla");
+getTableData("tipos_ambientes");

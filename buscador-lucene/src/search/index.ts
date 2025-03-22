@@ -28,4 +28,15 @@ async function indexFiles() {
   }
 }
 
+export function searchFiles(query: string) {
+  return index
+    .filter((doc) => doc.content.toLowerCase().includes(query.toLowerCase()))
+    .map((doc) => ({
+      type: "file",
+      name: doc.name,
+      path: doc.path,
+    }));
+}
+
+
 indexFiles();

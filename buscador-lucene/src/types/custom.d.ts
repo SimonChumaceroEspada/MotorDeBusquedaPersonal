@@ -10,4 +10,7 @@ declare module "pdf-parse" {
     ): void;
     export { fromFileWithPath };
   }
-  
+
+  declare module "docx4js" {
+    export function load(filePath: string): Promise<{ getFullText(): string }>;
+  }
