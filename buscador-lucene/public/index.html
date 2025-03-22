@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscador Avanzado</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="logo">
+                <i class="fas fa-search-plus"></i>
+                <h1>Buscador Avanzado</h1>
+            </div>
+        </header>
+
+        <div class="search-container">
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="Buscar en base de datos y documentos...">
+                <button id="searchButton"><i class="fas fa-search"></i></button>
+            </div>
+        </div>
+
+        <div class="results-stats" id="resultsStats"></div>
+
+        <div class="filters">
+            <button class="filter-btn active" data-filter="all">Todos</button>
+            <button class="filter-btn" data-filter="database">Base de Datos</button>
+            <button class="filter-btn" data-filter="document">Documentos</button>
+        </div>
+
+        <div class="results-container" id="resultsContainer">
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Buscando...</p>
+            </div>
+            <div class="no-results" id="noResults">
+                <i class="fas fa-search"></i>
+                <p>No se encontraron resultados para tu búsqueda.</p>
+                <span>Intenta con otros términos</span>
+            </div>
+            <div class="results" id="results"></div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Buscador Avanzado &copy; 2025</p>
+    </footer>
+
+    <template id="resultItemTemplate">
+        <div class="result-item">
+            <div class="result-icon">
+                <i class="fas fa-database database-icon"></i>
+                <i class="fas fa-file-alt document-icon"></i>
+            </div>
+            <div class="result-content">
+                <div class="result-header">
+                    <span class="result-type"></span>
+                    <span class="result-column"></span>
+                </div>
+                <div class="result-body"></div>
+            </div>
+        </div>
+    </template>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
