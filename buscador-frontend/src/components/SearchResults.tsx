@@ -17,9 +17,9 @@ function SearchResults({ results, query }: SearchResultsProps) {
     groupedResults[result.tabla].push(result);
   });
 
-  // Función para resaltar la consulta en el texto
+  // Función para resaltar todas las ocurrencias de la consulta en el texto
   const highlightText = (text: string) => {
-    if (!query) return text;
+    if (!query || query.trim() === '') return text;
     
     // Escapar caracteres especiales en la consulta para usar en regex
     const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');

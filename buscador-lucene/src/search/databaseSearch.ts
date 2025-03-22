@@ -114,13 +114,30 @@ export async function searchDatabaseAndDocuments(query: string) {
             continue;
           }
 
-          if (content.toLowerCase().includes(query.toLowerCase()) && !nameMatch) {
-            results.push({ 
-              tabla: "documento", 
-              columna: "contenido", 
-              resultado: `Archivo: ${file} - ${content.substring(0, 200)}...` 
-            });
-            console.log(`Coincidencia en contenido: ${file}`);
+          if (content.toLowerCase().includes(query.toLowerCase())) {
+            // En lugar de una sola coincidencia, buscamos todas las ocurrencias
+            const contentLower = content.toLowerCase();
+            const queryLower = query.toLowerCase();
+            let startPos = 0;
+            let foundPos;
+            
+            while ((foundPos = contentLower.indexOf(queryLower, startPos)) !== -1) {
+              // Extraer un fragmento de texto alrededor de la coincidencia para contexto
+              const startExtract = Math.max(0, foundPos - 50);
+              const endExtract = Math.min(content.length, foundPos + queryLower.length + 50);
+              const excerpt = content.substring(startExtract, endExtract);
+
+              results.push({ 
+                tabla: "documento", 
+                columna: "contenido", 
+                resultado: `Archivo: ${file} - ${excerpt}` 
+              });
+              
+              // Avanzar a la siguiente posición después de esta coincidencia
+              startPos = foundPos + queryLower.length;
+            }
+            
+            console.log(`Coincidencias en contenido: ${file}`);
           }
         } catch (error) {
           console.error(`Error procesando archivo ${file}:`, error);
