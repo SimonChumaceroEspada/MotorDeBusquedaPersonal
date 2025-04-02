@@ -1,0 +1,17 @@
+{
+  "name": "buscador",
+  "version": "1.0.0",
+  "description": "Buscador de documentos y base de datos",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "cd buscador-lucene && ts-node src/server.ts",
+    "frontend": "cd buscador-frontend && npm run dev",
+    "setup-python-deps": "cd buscador-lucene && python python/install_deps.py all",
+    "setup-excel": "cd buscador-lucene && python python/install_deps.py excel",
+    "setup-powerpoint": "cd buscador-lucene && python python/install_deps.py powerpoint"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
